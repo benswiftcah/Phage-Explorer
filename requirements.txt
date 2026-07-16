@@ -8,5 +8,13 @@ pyrodigal>=3.4
 # scikit-learn version, see the comment in Dockerfile for why.
 bacphlip==0.9.6
 scikit-learn==0.23.1
+
+# Pinned deliberately: NumPy 1.24 removed the deprecated aliases (np.float,
+# np.int, np.bool, etc.) that scikit-learn 0.23.1's internals still use.
+# Anything >=1.24 breaks BACPHLIP's classifier at import time with
+# "AttributeError: module 'numpy' has no attribute 'float'". Don't remove
+# this pin without testing the exact scikit-learn/numpy pair together.
+numpy==1.23.5
+
 pandas>=1.0
 joblib>=0.13
