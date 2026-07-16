@@ -61,6 +61,14 @@ PHAGE_PFAM_FAMILIES = [
     ("PF00145", "DNA methyltransferase"),
     ("PF01653", "DNA ligase (adenylation domain)"),
     ("PF13392", "HNH endonuclease"),
+    ("PF08275", "DNA primase (catalytic core)"),
+    ("PF01807", "DNA primase (zinc-binding domain)"),
+    # Recombination
+    ("PF09588", "recombination exonuclease (YqaJ-like/lambda-exo-like)"),
+    ("PF03837", "single-strand annealing protein (RecT/Redbeta-like)"),
+    ("PF00436", "single-stranded DNA-binding protein (SSB)"),
+    # Excision (lysogeny)
+    ("PF07825", "excisionase (recombination directionality factor)"),
 ]
 
 INTERPRO_URL_TEMPLATE = "https://www.ebi.ac.uk/interpro/api/entry/pfam/{}/?annotation=hmm"
