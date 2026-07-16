@@ -1,4 +1,4 @@
-[README.md](https://github.com/user-attachments/files/30092666/README.md)
+[README.md](https://github.com/user-attachments/files/30093118/README.md)
 # Phage Explorer
 
 A phage genome analysis tool. Upload a FASTA file or give an NCBI accession,
@@ -17,14 +17,14 @@ prediction.
 | Host prediction | Placeholder | needs a reference bacterial genome DB (e.g. iPHoP) |
 
 Functional annotation runs a real HMM search (`hmmscan`), but against a
-curated set of ~20 well-established Pfam phage protein families (capsid,
-portal, terminase, tail, integrase, lysis, DNA replication genes) rather
-than the full PHROGs database (38,880 families, 3GB unzipped — too large
-for a free-tier instance). Genes outside this set show "hypothetical
-protein", honestly reflecting the reference set's size rather than a
-failed search. See `build_hmm_db.py` for the exact family list and the
-InterPro API calls used to build the local HMM database at Docker build
-time.
+curated set of ~29 well-established Pfam phage protein families (capsid,
+portal, terminase, tail, integrase, excisionase, lysis, Red recombination,
+DNA replication genes) rather than the full PHROGs database (38,880
+families, 3GB unzipped — too large for a free-tier instance). Genes
+outside this set show "hypothetical protein", honestly reflecting the
+reference set's size rather than a failed search. See `build_hmm_db.py`
+for the exact family list and the InterPro API calls used to build the
+local HMM database at Docker build time.
 
 ## Deploying (Render.com)
 
