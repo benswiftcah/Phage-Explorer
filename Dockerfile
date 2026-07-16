@@ -20,6 +20,14 @@ RUN pip install --no-cache-dir --upgrade pip \
 
 COPY --chown=user . /app
 
+# Build the curated phage-protein-family HMM database (downloads ~20 Pfam
+# HMMs and presses them into a local HMMER database). Runs at build time,
+# not per-request, and baked into the image. If this step's network calls
+# fail on a given platform, see build_hmm_db.py -- it degrades gracefully
+# (skips unreachable families) rather than failing the whole build, as
+# long as at least one family downloads successfully.
+RUN python3 build_hmm_db.py
+
 USER user
 ENV HOME=/home/user
 
