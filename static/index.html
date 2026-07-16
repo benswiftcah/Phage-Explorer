@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Phage Bench — Genome Analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">Φ</span>
+      <div class="brand-text">
+        <h1>Phage Bench</h1>
+        <p>genome analysis workbench</p>
+      </div>
+    </div>
+
+    <div class="input-panel">
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-tab="upload" role="tab">Upload FASTA</button>
+        <button class="tab" data-tab="accession" role="tab">NCBI Accession</button>
+      </div>
+
+      <form id="upload-form" class="tab-panel active" data-panel="upload">
+        <label class="dropzone" id="dropzone" for="fasta-file">
+          <span class="dropzone-icon">⤒</span>
+          <span class="dropzone-label">Drop a .fasta / .fa file here<br>or click to browse</span>
+          <span class="dropzone-filename" id="dropzone-filename"></span>
+        </label>
+        <input type="file" id="fasta-file" name="file" accept=".fasta,.fa,.fna,.txt" hidden />
+        <button type="button" class="link-btn" id="use-sample">Use sample genome instead</button>
+        <button type="submit" class="submit-btn">Run pipeline</button>
+      </form>
+
+      <form id="accession-form" class="tab-panel" data-panel="accession">
+        <label for="accession-input">NCBI nucleotide accession</label>
+        <input type="text" id="accession-input" name="accession" placeholder="e.g. NC_001416.1" />
+        <p class="hint">Fetched live from NCBI — requires internet access from wherever this server runs.</p>
+        <button type="submit" class="submit-btn">Run pipeline</button>
+      </form>
+    </div>
+
+    <div class="pipeline-key">
+      <p class="pipeline-key-title">Pipeline stages</p>
+      <ol id="stage-list"></ol>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <section id="empty-state" class="empty-state">
+      <p class="eyebrow">No genome loaded</p>
+      <h2>Submit a FASTA file or accession to begin</h2>
+      <p class="muted">Gene calling (Pyrodigal) and lifestyle prediction (BACPHLIP —
+        real HMM search + trained classifier) both run for real here. Functional
+        annotation, taxonomy, and host prediction are still placeholders — see the
+        results panel for what each would need to become real.</p>
+    </section>
+
+    <section id="progress-state" class="progress-state hidden">
+      <p class="eyebrow" id="progress-genome-name">Processing…</p>
+      <div class="progress-track" id="progress-track"></div>
+      <p class="progress-message" id="progress-message"></p>
+    </section>
+
+    <section id="error-state" class="error-state hidden">
+      <p class="eyebrow">Pipeline error</p>
+      <h2 id="error-message"></h2>
+      <button class="link-btn" id="error-dismiss">Try again</button>
+    </section>
+
+    <section id="results-state" class="results-state hidden">
+
+      <div class="overview-cards" id="overview-cards"></div>
+
+      <div class="genome-map-wrap">
+        <p class="section-label">Genome map <span class="section-label-sub">— called genes by position and strand</span></p>
+        <div id="genome-map"></div>
+        <div class="legend">
+          <span class="legend-item"><i class="swatch swatch-fwd"></i> forward strand</span>
+          <span class="legend-item"><i class="swatch swatch-rev"></i> reverse strand</span>
+        </div>
+      </div>
+
+      <div class="results-tabs">
+        <div class="tabs" role="tablist">
+          <button class="tab active" data-rtab="genes">Genes</button>
+          <button class="tab" data-rtab="taxonomy">Taxonomy</button>
+          <button class="tab" data-rtab="host">Host prediction</button>
+          <button class="tab" data-rtab="lifestyle">Lifestyle</button>
+        </div>
+
+        <div class="result-panel active" data-rpanel="genes">
+          <table class="genes-table" id="genes-table">
+            <thead>
+              <tr><th>Gene</th><th>Start</th><th>End</th><th>Strand</th><th>Length (aa)</th><th>Function</th></tr>
+            </thead>
+            <tbody id="genes-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="result-panel" data-rpanel="taxonomy">
+          <div class="placeholder-card" id="taxonomy-card"></div>
+        </div>
+
+        <div class="result-panel" data-rpanel="host">
+          <div class="placeholder-card" id="host-card"></div>
+        </div>
+
+        <div class="result-panel" data-rpanel="lifestyle">
+          <div class="placeholder-card" id="lifestyle-card"></div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

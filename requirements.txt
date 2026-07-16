@@ -1,0 +1,12 @@
+fastapi>=0.110
+uvicorn[standard]>=0.29
+python-multipart>=0.0.9
+biopython>=1.79
+pyrodigal>=3.4
+
+# BACPHLIP and its pinned classifier dependency — do not change the
+# scikit-learn version, see the comment in Dockerfile for why.
+bacphlip==0.9.6
+scikit-learn==0.23.1
+pandas>=1.0
+joblib>=0.13
