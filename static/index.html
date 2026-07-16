@@ -34,7 +34,7 @@
           <span class="dropzone-filename" id="dropzone-filename"></span>
         </label>
         <input type="file" id="fasta-file" name="file" accept=".fasta,.fa,.fna,.txt" hidden />
-        <button type="button" class="link-btn" id="use-sample">Use sample genome instead</button>
+        <button type="button" class="link-btn" id="use-sample">Try it with phage lambda (fetched live from NCBI)</button>
         <button type="submit" class="submit-btn">Run pipeline</button>
       </form>
 
@@ -57,10 +57,10 @@
     <section id="empty-state" class="empty-state">
       <p class="eyebrow">No genome loaded</p>
       <h2>Submit a FASTA file or accession to begin</h2>
-      <p class="muted">Gene calling (Pyrodigal) and lifestyle prediction (BACPHLIP —
-        real HMM search + trained classifier) both run for real here. Functional
-        annotation, taxonomy, and host prediction are still placeholders — see the
-        results panel for what each would need to become real.</p>
+      <p class="muted">Gene calling (Pyrodigal), lifestyle prediction (BACPHLIP), and
+        functional annotation (HMM search against ~20 common phage protein families)
+        all run for real here. Taxonomy and host prediction are still placeholders —
+        see their tabs in the results for what each would need to become real.</p>
     </section>
 
     <section id="progress-state" class="progress-state hidden">
