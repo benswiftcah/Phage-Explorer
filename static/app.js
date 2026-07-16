@@ -60,11 +60,15 @@ dropzone.addEventListener("drop", (e) => {
   }
 });
 
-document.getElementById("use-sample").addEventListener("click", async () => {
-  const resp = await fetch("/api/sample");
-  const blob = await resp.blob();
-  selectedFile = new File([blob], "sample_phage.fasta");
-  filenameLabel.textContent = "sample_phage.fasta (synthetic test data)";
+document.getElementById("use-sample").addEventListener("click", () => {
+  // Enterobacteria phage lambda (NC_001416.1) -- the classic, best-studied
+  // temperate phage. Fetched live from NCBI via the existing accession
+  // path rather than bundling a static sequence, so it's always the real,
+  // authoritative record.
+  document.querySelector('.sidebar .tab[data-tab="accession"]').click();
+  const input = document.getElementById("accession-input");
+  input.value = "NC_001416.1";
+  document.getElementById("accession-form").requestSubmit();
 });
 
 // ---------- Form submission ----------
