@@ -269,13 +269,111 @@ def _lifestyle_placeholder(reason: str) -> Dict[str, Any]:
 # PLACEHOLDER stages: functional annotation, taxonomy, host
 # ============================================================
 
+# ============================================================
+# REAL: functional annotation (curated Pfam profile set + HMMER)
+# ============================================================
+
+from build_hmm_db import PHAGE_PFAM_FAMILIES  # noqa: E402
+
+PFAM_LABELS = {accession: label for accession, label in PHAGE_PFAM_FAMILIES}
+HMM_DB_PATH = BASE_DIR / "data" / "phage_profiles.hmm"
+
+
 def functional_annotation(genes: List[Gene]) -> Dict[str, Any]:
-    annotations = [{"gene_id": g.id, "function": "hypothetical protein", "is_placeholder": True} for g in genes]
-    return {
-        "annotations": annotations,
-        "note": ("Functional annotation requires an HMM search against the PHROGs database "
-                  "(e.g. via Pharokka) — not yet wired into this deployment."),
-    }
+    """
+    Runs the actual genes through HMMER's hmmscan against a curated,
+    locally-bundled set of ~20 well-established phage protein family
+    profiles from Pfam (built at Docker build time — see build_hmm_db.py).
+
+    This is real HMM-based annotation, not a placeholder — but it's
+    deliberately a small, curated set rather than full PHROGs (38,880
+    families, 3GB), which doesn't fit a free-tier instance's resources.
+    Genes that don't match one of these ~20 families are honestly shown
+    as "hypothetical protein" — that reflects the reference set's size,
+    not a broken search.
+    """
+    if not genes:
+        return {"annotations": [], "note": "No genes to annotate."}
+
+    if not HMM_DB_PATH.exists():
+        # Build-time step didn't run or failed — fail soft into the
+        # placeholder shape rather than crashing the whole pipeline.
+        annotations = [
+            {"gene_id": g.id, "function": "hypothetical protein", "is_placeholder": True}
+            for g in genes
+        ]
+        return {
+            "annotations": annotations,
+            "note": "Local HMM profile database not found on this deployment — functional annotation unavailable.",
+        }
+
+    try:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            faa_path = Path(tmpdir) / "genes.faa"
+            with open(faa_path, "w") as f:
+                for gene in genes:
+                    f.write(f">{gene.id}\n{gene.translation}\n")
+
+            tbl_path = Path(tmpdir) / "hits.tbl"
+            subprocess.run(
+                [
+                    "hmmscan", "--tblout", str(tbl_path), "--noali",
+                    "-E", "1e-5", str(HMM_DB_PATH), str(faa_path),
+                ],
+                capture_output=True, text=True, timeout=120, check=True,
+            )
+
+            # Keep only the best (lowest e-value) hit per gene.
+            best_hit: Dict[str, tuple] = {}  # gene_id -> (accession, evalue)
+            with open(tbl_path) as f:
+                for line in f:
+                    if line.startswith("#") or not line.strip():
+                        continue
+                    parts = line.split()
+                    target_accession = parts[1].split(".")[0]  # strip Pfam version suffix
+                    query_gene_id = parts[2]
+                    evalue = float(parts[4])
+                    if query_gene_id not in best_hit or evalue < best_hit[query_gene_id][1]:
+                        best_hit[query_gene_id] = (target_accession, evalue)
+
+            annotations = []
+            matched = 0
+            for gene in genes:
+                hit = best_hit.get(gene.id)
+                if hit:
+                    accession, evalue = hit
+                    label = PFAM_LABELS.get(accession, accession)
+                    matched += 1
+                    annotations.append({
+                        "gene_id": gene.id, "function": label,
+                        "pfam_accession": accession, "evalue": evalue,
+                        "is_placeholder": False,
+                    })
+                else:
+                    annotations.append({
+                        "gene_id": gene.id, "function": "hypothetical protein",
+                        "is_placeholder": True,
+                    })
+
+            return {
+                "annotations": annotations,
+                "note": (
+                    f"Real HMM search (HMMER hmmscan) against a curated set of "
+                    f"{len(PHAGE_PFAM_FAMILIES)} common phage protein families from Pfam "
+                    f"— matched {matched} of {len(genes)} genes. This is a small, hand-picked "
+                    f"subset (capsid, portal, terminase, tail, integrase, lysis, replication "
+                    f"genes), not the full PHROGs database (38,880 families) — genes outside "
+                    f"this set are shown as 'hypothetical protein' because they weren't "
+                    f"checked against a family that would recognize them, not because they "
+                    f"were checked and failed."
+                ),
+            }
+    except subprocess.TimeoutExpired:
+        annotations = [{"gene_id": g.id, "function": "hypothetical protein", "is_placeholder": True} for g in genes]
+        return {"annotations": annotations, "note": "Annotation search timed out."}
+    except Exception as exc:  # noqa: BLE001
+        annotations = [{"gene_id": g.id, "function": "hypothetical protein", "is_placeholder": True} for g in genes]
+        return {"annotations": annotations, "note": f"Annotation search failed: {exc}"}
 
 
 def taxonomy_classification() -> Dict[str, Any]:
