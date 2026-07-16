@@ -1,4 +1,5 @@
-# Phage Bench
+[README.md](https://github.com/user-attachments/files/30092666/README.md)
+# Phage Explorer
 
 A phage genome analysis tool. Upload a FASTA file or give an NCBI accession,
 and get back real gene predictions and a real lytic-vs-lysogenic lifestyle
@@ -11,12 +12,19 @@ prediction.
 | Genome input (upload / NCBI fetch) | **Real** | Biopython |
 | Gene calling | **Real** | Pyrodigal |
 | Lifestyle prediction (lytic/lysogenic) | **Real** | BACPHLIP (HMMER + random forest) |
-| Functional annotation | Placeholder | needs PHROGs + HMM search (e.g. Pharokka) |
+| Functional annotation | **Real (curated subset)** | HMMER + ~20 hand-picked Pfam phage families |
 | Taxonomy classification | Placeholder | needs a reference set (e.g. INPHARED + vConTACT2) |
 | Host prediction | Placeholder | needs a reference bacterial genome DB (e.g. iPHoP) |
 
-The three placeholders return clearly-labeled mock data rather than made-up
-numbers — see `app.py` for exactly what each would need to become real.
+Functional annotation runs a real HMM search (`hmmscan`), but against a
+curated set of ~20 well-established Pfam phage protein families (capsid,
+portal, terminase, tail, integrase, lysis, DNA replication genes) rather
+than the full PHROGs database (38,880 families, 3GB unzipped — too large
+for a free-tier instance). Genes outside this set show "hypothetical
+protein", honestly reflecting the reference set's size rather than a
+failed search. See `build_hmm_db.py` for the exact family list and the
+InterPro API calls used to build the local HMM database at Docker build
+time.
 
 ## Deploying (Render.com)
 
