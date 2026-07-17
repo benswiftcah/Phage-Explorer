@@ -4,6 +4,12 @@ python-multipart>=0.0.9
 biopython>=1.79
 pyrodigal>=3.4
 
+# Phage-specific gene caller -- finds substantially more real genes on
+# phage genomes than general callers (Prodigal/Pyrodigal) because it's
+# tuned for phages' dense, overlapping gene layout. Pyrodigal is kept
+# above as an automatic fallback if this ever fails.
+phanotate>=1.6.7
+
 # BACPHLIP and its pinned classifier dependency — do not change the
 # scikit-learn version, see the comment in Dockerfile for why.
 bacphlip==0.9.6
